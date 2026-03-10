@@ -1,0 +1,9 @@
+{
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smtp_user": "SEUEMAIL@gmail.com",
+  "smtp_pass": "SENHA_DE_APP_AQUI",
+  "from_name": "Certificados",
+  "subject": "Seu certificado Harpia foi gerado",
+  "body": "Olá! Segue seu certificado em anexo.\n\nAtenciosamente,\nEquipe"
+}

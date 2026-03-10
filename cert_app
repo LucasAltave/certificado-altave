@@ -1,0 +1,14 @@
+cert_app/
+  app.py
+  db.py
+  cert_gen.py
+  mailer.py
+  config.example.json
+  requirements.txt
+  assets/
+    template.png
+    fonts/
+      Montserrat-Regular.ttf
+
+  output/
+  certs.db   (vai ser criado automaticamente)

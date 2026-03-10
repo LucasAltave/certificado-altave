@@ -1,0 +1,6 @@
+Pillow==12.1.1
+sendgrid
+python-dotenv
+flask
+pillow
+
