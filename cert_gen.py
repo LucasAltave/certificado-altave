@@ -15,7 +15,7 @@ ASSETS_DIR = BASE_DIR / "assets"
 OUTPUT_DIR = BASE_DIR / "output"
 TEMPLATE_PATH = ASSETS_DIR / "cert_template.png"
 
-PDF_SCALE = 3
+PDF_SCALE = 4
 
 
 # =========================
@@ -23,8 +23,8 @@ PDF_SCALE = 3
 # =========================
 BLUE = (18, 61, 150)
 DARK_BLUE = (10, 44, 115)
-BLACK = (38, 42, 55)
-GRAY = (90, 96, 110)
+BLACK = (45, 49, 58)
+GRAY = (100, 105, 118)
 
 
 # =========================
@@ -41,13 +41,15 @@ def _pick_font(candidates: list[str]) -> Optional[Path]:
 REGULAR_FONT_PATH = _pick_font([
     "C:/Windows/Fonts/calibri.ttf",
     "C:/Windows/Fonts/arial.ttf",
-    "C:/Windows/Fonts/times.ttf",
+    "C:/Windows/Fonts/tahoma.ttf",
+    "C:/Windows/Fonts/verdana.ttf",
 ])
 
 BOLD_FONT_PATH = _pick_font([
     "C:/Windows/Fonts/calibrib.ttf",
     "C:/Windows/Fonts/arialbd.ttf",
-    "C:/Windows/Fonts/timesbd.ttf",
+    "C:/Windows/Fonts/tahomabd.ttf",
+    "C:/Windows/Fonts/verdanab.ttf",
 ])
 
 SCRIPT_FONT_PATH = _pick_font([
@@ -116,6 +118,12 @@ def _safe_filename(name: str) -> str:
     return safe or "certificado"
 
 
+def _clean_text(value: str, max_len: int) -> str:
+    value = (value or "").strip()
+    value = " ".join(value.split())
+    return value[:max_len]
+
+
 # =========================
 # RENDER PRINCIPAL
 # =========================
@@ -128,11 +136,11 @@ def render_certificate_image(
 ) -> Image.Image:
     _ensure_file(TEMPLATE_PATH, "Template do certificado")
 
-    full_name = (full_name or "").strip()
-    role = (role or "").strip()
-    date_text = (date_text or "").strip()
-    instructor = (instructor or "").strip()
-    company_name = (company_name or "").strip()
+    full_name = _clean_text(full_name, 120)
+    role = _clean_text(role, 80)
+    date_text = _clean_text(date_text, 20)
+    instructor = _clean_text(instructor, 80)
+    company_name = _clean_text(company_name, 90)
 
     if not full_name or not role or not date_text or not instructor or not company_name:
         raise ValueError("Campos obrigatórios: Nome, Função, Data, Instrutor e Empresa.")
@@ -144,47 +152,48 @@ def render_certificate_image(
     cx = w // 2
 
     # =========================
-    # FONTES
+    # FONTES AJUSTADAS
     # =========================
-    title_font = _font(36, bold=True)
-    subtitle_font = _font(18, bold=True)
+    title_font = _font(52, bold=True)
+    subtitle_font = _font(20, bold=True)
 
     intro_font = _font(16)
-    name_font = _fit_font(draw, f"Sr(a). {full_name},", int(w * 0.52), 23, 16, bold=True)
+    name_font = _fit_font(draw, f"Sr(a). {full_name},", int(w * 0.56), 30, 19, bold=True)
 
     body_font = _font(16)
     body_bold_font = _font(16, bold=True)
 
     role_prefix_font = _font(16)
-    role_value_font = _fit_font(draw, f" {role},", int(w * 0.25), 13, 11, bold=True)
+    role_value_font = _fit_font(draw, f" {role},", int(w * 0.24), 16, 11, bold=True)
 
     date_prefix_font = _font(16)
-    date_value_font = _fit_font(draw, f" {date_text},", int(w * 0.18), 13, 11, bold=True)
+    date_value_font = _fit_font(draw, f" {date_text},", int(w * 0.18), 16, 11, bold=True)
 
-    sign_script_font = _fit_font(draw, instructor, int(w * 0.22), 24, 16, script=True)
-    company_font = _fit_font(draw, company_name, int(w * 0.20), 14, 10, bold=True)
-    sign_label_font = _font(11, bold=True)
+    sign_script_font = _fit_font(draw, instructor, int(w * 0.24), 24, 16, script=True)
+    company_font = _fit_font(draw, company_name, int(w * 0.24), 15, 10, bold=True)
+    footer_label_font = _font(11, bold=True)
 
     # =========================
     # TÍTULOS
     # =========================
-    _draw_center(draw, "CERTIFICADO", cx, 78, title_font, DARK_BLUE)
-    _draw_center(draw, "OPERADOR E REPLICADOR DO SISTEMA", cx, 120, subtitle_font, DARK_BLUE)
+    _draw_center(draw, "CERTIFICADO", cx, 52, title_font, DARK_BLUE)
+    _draw_center(draw, "OPERADOR E REPLICADOR DO SISTEMA", cx, 104, subtitle_font, DARK_BLUE)
 
     # =========================
-    # BLOCO DE TEXTO
+    # BLOCO CENTRAL
     # =========================
-    y_intro = 200
-    y_name = 230
-    y_role = 260
-    y_line1 = 290
-    y_line2 = 320
-    y_line3 = 350
-    y_line4 = 380
+    y_intro = 185
+    y_name = 220
+    y_role = 257
+    y_line1 = 294
+    y_line2 = 331
+    y_line3 = 368
+    y_line4 = 405
 
     _draw_center(draw, "Por meio deste, a ALTAVE certifica que", cx, y_intro, intro_font, BLACK)
     _draw_center(draw, f"Sr(a). {full_name},", cx, y_name, name_font, DARK_BLUE)
 
+    # Linha função
     role_prefix = "com a função de"
     role_value = f" {role},"
 
@@ -205,6 +214,7 @@ def render_certificate_image(
         BLACK,
     )
 
+    # Linha data
     date_prefix = "de Software Altave Harpia no dia"
     date_value = f" {date_text},"
 
@@ -231,32 +241,26 @@ def render_certificate_image(
         cx,
         y_line4,
         body_bold_font,
-        DARK_BLUE,
+        fill=DARK_BLUE,
     )
 
     # =========================
-    # ASSINATURAS / RODAPÉ
+    # RODAPÉ / ASSINATURAS
     # =========================
-    # Ajustados para coincidir com as duas linhas do template
-    left_sign_x = 264
-    right_sign_x = 631
+    left_sign_x = 215
+    right_sign_x = 565
 
-    # Y da linha do template
-    line_y = 508
+    # Ajuste fino vertical
+    sign_name_y = 485
+    line_label_y = 520
 
-    # Nome acima da linha
-    instructor_name_y = 465
-    company_name_y = 480
+    # Esquerda: instrutor
+    _draw_center(draw, instructor, left_sign_x, sign_name_y, sign_script_font, BLUE)
+    _draw_center(draw, "Instrutor", left_sign_x, line_label_y, footer_label_font, GRAY)
 
-    # Texto abaixo da linha
-    instructor_label_y = 502
-    company_label_y = 502
-
-    _draw_center(draw, instructor, left_sign_x, instructor_name_y, sign_script_font, BLUE)
-    _draw_center(draw, "Instrutor", left_sign_x, instructor_label_y, sign_label_font, GRAY)
-
-    _draw_center(draw, company_name, right_sign_x, company_name_y, company_font, BLACK)
-    _draw_center(draw, "Empresa do Colaborador", right_sign_x, company_label_y, sign_label_font, GRAY)
+    # Direita: empresa
+    _draw_center(draw, company_name, right_sign_x, sign_name_y, company_font, BLACK)
+    _draw_center(draw, "Empresa do Colaborador", right_sign_x, line_label_y, footer_label_font, GRAY)
 
     return img
 
