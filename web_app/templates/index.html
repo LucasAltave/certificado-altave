@@ -1,10 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Certificado Harpia Altave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-$END$
+  <div class="bg">
+    <div class="glow g1"></div>
+    <div class="glow g2"></div>
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="noise"></div>
+  </div>
+
+  <main class="wrap">
+    <div class="top-header">
+      <div class="brandbar">
+        <div class="logo-container">
+          <img src="{{ url_for('static', filename='img/altave_logo.png') }}" alt="Altave Logo">
+        </div>
+
+        <div class="brandtxt">
+          <div class="brandtitle">CERTIFICADO HARPIA ALTAVE</div>
+          <div class="brandsub">Geração e validação de certificados</div>
+        </div>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1 class="title">
+        <span class="accent">CERTIFICADO</span><br>
+        <span>HARPIA ALTAVE</span>
+      </h1>
+      <p class="subtitle">
+        Preencha os dados do participante, visualize o certificado e gere o PDF.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card form-card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Dados do Certificado</div>
+            <div class="card-desc">O preview abaixo mostra exatamente o certificado antes do PDF.</div>
+          </div>
+          <div class="badge">PDF</div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert">
+              {% for m in messages %}
+                <div>{{ m }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form id="certForm" method="post" action="/generate" class="form">
+          <div class="row">
+            <label class="label">Nome completo</label>
+            <input class="input" name="full_name" placeholder="Ex.: Luiz Henrique Gonçalves de Oliveira" required>
+          </div>
+
+          <div class="row">
+            <label class="label">Função</label>
+            <input class="input" name="role" placeholder="Ex.: Imediato" required>
+          </div>
+
+          <div class="row">
+            <label class="label">Empresa do colaborador</label>
+            <input class="input" name="company_name" placeholder="Ex.: BRAM Mr. Aldo" required>
+          </div>
+
+          <div class="row two">
+            <div>
+              <label class="label">Instrutor</label>
+              <input class="input" name="instructor" value="Lucas Pereira" required>
+            </div>
+            <div>
+              <label class="label">Data (DD/MM/AAAA)</label>
+              <input class="input" name="date_text" placeholder="27/02/2026" required>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn ghost" type="button" id="btnPreview">
+              👁 Visualizar certificado
+            </button>
+
+            <button class="btn primary" type="submit">
+              ⬇ Gerar PDF
+            </button>
+          </div>
+
+          <p class="hint" id="previewMsg">Clique em “Visualizar certificado” para gerar o preview.</p>
+        </form>
+      </div>
+
+      <div class="card preview-card">
+        <div class="card-title">Pré-visualização</div>
+        <div class="card-desc">O certificado aparecerá exatamente aqui antes do download.</div>
+
+        <div class="preview-frame">
+          <img id="previewImg" alt="Preview do certificado" />
+          <div class="preview-placeholder" id="previewPlaceholder">
+            Clique em <b>Visualizar certificado</b> para gerar o preview.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>© 2026 • Certificados</span>
+      <span class="sep">•</span>
+      <span class="muted">Interface web (Flask)</span>
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById("certForm");
+    const btnPreview = document.getElementById("btnPreview");
+    const img = document.getElementById("previewImg");
+    const ph = document.getElementById("previewPlaceholder");
+    const msg = document.getElementById("previewMsg");
+
+    btnPreview.addEventListener("click", async () => {
+      msg.textContent = "Gerando preview...";
+      msg.style.opacity = 0.9;
+
+      const fd = new FormData(form);
+
+      try {
+        const res = await fetch("/preview", { method: "POST", body: fd });
+        const data = await res.json();
+
+        if (!data.ok) {
+          msg.textContent = data.error || "Erro ao gerar preview.";
+          return;
+        }
+
+        ph.style.display = "none";
+        img.src = data.url + "?t=" + Date.now();
+        img.style.display = "block";
+        msg.textContent = "Preview atualizado.";
+      } catch (e) {
+        msg.textContent = "Falha ao chamar o preview.";
+      }
+    });
+  </script>
 </body>
 </html>
+if __name__ == "__main__":
+    import os
+
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", 5001))
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+
+    app.run(
+        host=host,
+        port=port,
+        debug=debug,
+        use_reloader=False,
+    )

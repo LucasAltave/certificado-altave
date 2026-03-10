@@ -24,6 +24,7 @@ PDF_SCALE = 3
 BLUE = (18, 61, 150)
 DARK_BLUE = (10, 44, 115)
 BLACK = (38, 42, 55)
+GRAY = (90, 96, 110)
 
 
 # =========================
@@ -87,14 +88,23 @@ def _draw_center(draw: ImageDraw.ImageDraw, text: str, x_center: int, y: int, fo
     draw.text((x_center - w // 2, y), text, font=font, fill=fill)
 
 
-def _fit_font(draw: ImageDraw.ImageDraw, text: str, max_width: int, start_size: int, min_size: int, *, bold=False):
+def _fit_font(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    max_width: int,
+    start_size: int,
+    min_size: int,
+    *,
+    bold: bool = False,
+    script: bool = False,
+):
     size = start_size
-    font = _font(size, bold=bold)
+    font = _font(size, bold=bold, script=script)
     w, _ = _text_size(draw, text, font)
 
     while w > max_width and size > min_size:
         size -= 1
-        font = _font(size, bold=bold)
+        font = _font(size, bold=bold, script=script)
         w, _ = _text_size(draw, text, font)
 
     return font
@@ -151,10 +161,9 @@ def render_certificate_image(
     date_prefix_font = _font(16)
     date_value_font = _fit_font(draw, f" {date_text},", int(w * 0.18), 13, 11, bold=True)
 
-    sign_script_font = _font(18, script=True)
-    sign_name_font = _font(12, bold=True)
-    company_font = _fit_font(draw, company_name, int(w * 0.22), 14, 10, bold=True)
-    small_font = _font(11)
+    sign_script_font = _fit_font(draw, instructor, int(w * 0.22), 24, 16, script=True)
+    company_font = _fit_font(draw, company_name, int(w * 0.20), 14, 10, bold=True)
+    sign_label_font = _font(11, bold=True)
 
     # =========================
     # TÍTULOS
@@ -163,7 +172,7 @@ def render_certificate_image(
     _draw_center(draw, "OPERADOR E REPLICADOR DO SISTEMA", cx, 120, subtitle_font, DARK_BLUE)
 
     # =========================
-    # BLOCO DO TEXTO — COMPACTO
+    # BLOCO DE TEXTO
     # =========================
     y_intro = 200
     y_name = 230
@@ -176,7 +185,6 @@ def render_certificate_image(
     _draw_center(draw, "Por meio deste, a ALTAVE certifica que", cx, y_intro, intro_font, BLACK)
     _draw_center(draw, f"Sr(a). {full_name},", cx, y_name, name_font, DARK_BLUE)
 
-    # função
     role_prefix = "com a função de"
     role_value = f" {role},"
 
@@ -227,19 +235,28 @@ def render_certificate_image(
     )
 
     # =========================
-    # ASSINATURAS
+    # ASSINATURAS / RODAPÉ
     # =========================
-    left_sign_x = int(w * 0.285)
-    right_sign_x = int(w * 0.715)
+    # Ajustados para coincidir com as duas linhas do template
+    left_sign_x = 264
+    right_sign_x = 631
 
-    sign_y = 642
+    # Y da linha do template
+    line_y = 508
 
-    _draw_center(draw, instructor, left_sign_x, sign_y - 28, sign_script_font, BLUE)
-    _draw_center(draw, instructor, left_sign_x, sign_y + 12, sign_name_font, BLACK)
-    _draw_center(draw, "Instrutor", left_sign_x, sign_y + 38, small_font, BLACK)
+    # Nome acima da linha
+    instructor_name_y = 465
+    company_name_y = 480
 
-    _draw_center(draw, company_name, right_sign_x, sign_y + 12, company_font, BLACK)
-    _draw_center(draw, "Empresa", right_sign_x, sign_y + 38, small_font, BLACK)
+    # Texto abaixo da linha
+    instructor_label_y = 502
+    company_label_y = 502
+
+    _draw_center(draw, instructor, left_sign_x, instructor_name_y, sign_script_font, BLUE)
+    _draw_center(draw, "Instrutor", left_sign_x, instructor_label_y, sign_label_font, GRAY)
+
+    _draw_center(draw, company_name, right_sign_x, company_name_y, company_font, BLACK)
+    _draw_center(draw, "Empresa do Colaborador", right_sign_x, company_label_y, sign_label_font, GRAY)
 
     return img
 
