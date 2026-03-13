@@ -132,25 +132,3 @@ def main():
     ttk.Button(btns, text="Gerar Preview PNG", command=on_preview).pack(side="right")
 
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
-    import tkinter as tk
-
-def criar_interface():
-    root = tk.Tk()
-    root.title("Minha Aplicação com Tkinter")
-
-    # Criação de widgets
-    label = tk.Label(root, text="Bem-vindo ao meu app!")
-    label.pack(pady=20)
-
-    # Botão para fechar
-    button = tk.Button(root, text="Fechar", command=root.quit)
-    button.pack(pady=10)
-
-    root.mainloop()
-
-# Chamar a função para criar a interface
-criar_interface()
