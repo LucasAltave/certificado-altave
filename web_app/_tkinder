@@ -1,0 +1,37 @@
+import tkinter as tk
+
+# Função que será chamada quando o botão for clicado
+def salvar_dados():
+    # Obtém os dados inseridos pelo usuário
+    nome = entry_nome.get()
+    idade = entry_idade.get()
+    
+    # Exibe os dados no label de resultado
+    label_resultado.config(text=f"Nome: {nome}\nIdade: {idade}")
+
+# Criar a janela principal
+root = tk.Tk()
+root.title("Formulário de Cadastro")
+root.geometry("400x300")  # Define o tamanho da janela
+
+# Criar widgets (componentes) para entrada de dados
+label_nome = tk.Label(root, text="Nome:")
+label_nome.pack(pady=5)  # Adiciona o rótulo "Nome" com espaço de 5 pixels
+entry_nome = tk.Entry(root)  # Caixa de texto para inserir o nome
+entry_nome.pack(pady=5)  # Adiciona a caixa de texto com espaço de 5 pixels
+
+label_idade = tk.Label(root, text="Idade:")
+label_idade.pack(pady=5)  # Adiciona o rótulo "Idade"
+entry_idade = tk.Entry(root)  # Caixa de texto para inserir a idade
+entry_idade.pack(pady=5)  # Adiciona a caixa de texto com espaço de 5 pixels
+
+# Criar botão que ao ser clicado chama a função salvar_dados
+button_salvar = tk.Button(root, text="Salvar", command=salvar_dados)
+button_salvar.pack(pady=10)  # Adiciona o botão com espaço de 10 pixels
+
+# Label para exibir os resultados após o botão ser clicado
+label_resultado = tk.Label(root, text="Dados do Usuário:", font=("Arial", 12, "bold"))
+label_resultado.pack(pady=20)  # Exibe o label abaixo com texto inicial
+
+# Iniciar o loop da interface gráfica
+root.mainloop()  # Mantém a janela aberta e interativa
